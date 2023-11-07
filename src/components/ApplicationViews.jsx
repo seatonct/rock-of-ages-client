@@ -6,6 +6,7 @@ import Home from "../pages/Home";
 import { RockForm } from "./RockForm.jsx";
 import { RockList } from "./RockList.jsx";
 import { Register } from "../pages/Register.jsx";
+import { UserRockList } from "./UserRockList.jsx";
 
 export const ApplicationViews = () => {
   const [rocksState, setRocksState] = useState([
@@ -35,6 +36,29 @@ export const ApplicationViews = () => {
     setRocksState(rocks);
   };
 
+  const fetchUserRocksFromAPI = async () => {
+    const response = await fetch("http://localhost:8000/rocks?owner=current", {
+      headers: {
+        Authorization: `Token ${
+          JSON.parse(localStorage.getItem("rock_token")).token
+        }`,
+      },
+    });
+    const rocks = await response.json();
+    setRocksState(rocks);
+  };
+
+  const deleteRockFromAPI = async (pk) => {
+    await fetch(`http://localhost:8000/rocks/${pk}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Token ${
+          JSON.parse(localStorage.getItem("rock_token")).token
+        }`,
+      },
+    });
+  };
+
   return (
     <BrowserRouter>
       <Routes>
@@ -55,7 +79,11 @@ export const ApplicationViews = () => {
           <Route
             path="/mine"
             element={
-              <RockList rocks={rocksState} fetchRocks={fetchRocksFromAPI} />
+              <UserRockList
+                rocks={rocksState}
+                fetchRocks={fetchUserRocksFromAPI}
+                deleteRock={deleteRockFromAPI}
+              />
             }
           />
         </Route>
